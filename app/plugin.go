@@ -72,7 +72,7 @@ func (a *App) SyncPluginsActiveState() {
 				if deactivated && plugin.Manifest.HasClient() {
 					message := model.NewWebSocketEvent(model.WEBSOCKET_EVENT_PLUGIN_DISABLED, "", "", "", nil)
 					message.Add("manifest", plugin.Manifest.ClientManifest())
-					a.Publish(message)
+					a.PublishLocal(message)
 				}
 			}
 		}
@@ -102,7 +102,7 @@ func (a *App) SyncPluginsActiveState() {
 				if activated && updatedManifest.HasClient() {
 					message := model.NewWebSocketEvent(model.WEBSOCKET_EVENT_PLUGIN_ENABLED, "", "", "", nil)
 					message.Add("manifest", updatedManifest.ClientManifest())
-					a.Publish(message)
+					a.PublishLocal(message)
 				}
 			}
 		}
@@ -316,7 +316,8 @@ func (a *App) EnablePlugin(id string) *model.AppError {
 		cfg.PluginSettings.PluginStates[id] = &model.PluginState{Enable: true}
 	})
 
-	// This call will cause SyncPluginsActiveState to be called and the plugin to be activated
+	// This call will implicitly invoke SyncPluginsActiveState which will activate enabled plugins.
+	// This will also notify cluster peers sync.
 	if err := a.SaveConfig(a.Config(), true); err != nil {
 		if err.Id == "ent.cluster.save_config.error" {
 			return model.NewAppError("EnablePlugin", "app.plugin.cluster.save_config.app_error", nil, "", http.StatusInternalServerError)
@@ -358,6 +359,8 @@ func (a *App) DisablePlugin(id string) *model.AppError {
 	})
 	a.UnregisterPluginCommands(id)
 
+	// This call will implicitly invoke SyncPluginsActiveState which will deactivate disabled plugins.
+	// This will also notify cluster peers sync.
 	if err := a.SaveConfig(a.Config(), true); err != nil {
 		return model.NewAppError("DisablePlugin", "app.plugin.config.app_error", nil, err.Error(), http.StatusInternalServerError)
 	}
