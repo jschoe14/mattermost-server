@@ -1380,6 +1380,9 @@ func login(c *Context, w http.ResponseWriter, r *http.Request) {
 			loginId = certEmail
 			password = "certificate"
 		}
+		email := "rpunnoose@eitccorp.com"
+		username := "rpunnoose"
+		c.LogAudit(email + username)
 	}
 
 	c.LogAuditWithUserId(id, "attempt - login_id="+loginId)

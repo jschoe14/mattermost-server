@@ -21,6 +21,7 @@ func (a *App) CheckForClientSideCert(r *http.Request) (string, string, string) {
 	subject := r.Header.Get("X-SSL-Client-Cert-Subject-DN") // mapped to $ssl_client_s_dn from nginx
 	email := ""
 
+
 	if len(subject) > 0 {
 		for _, v := range strings.Split(subject, "/") {
 			kv := strings.Split(v, "=")
