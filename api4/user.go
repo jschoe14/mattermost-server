@@ -1,4 +1,4 @@
-// Copyright (c) 2017-present Mattermost, Inc. All Rights Reserved.
+ // Copyright (c) 2017-present Mattermost, Inc. All Rights Reserved.
 // See License.txt for license information.
 
 package api4
@@ -56,6 +56,7 @@ func (api *API) InitUser() {
 	api.BaseRoutes.User.Handle("/mfa/generate", api.ApiSessionRequiredMfa(generateMfaSecret)).Methods("POST")
 
 	api.BaseRoutes.Users.Handle("/login", api.ApiHandler(login)).Methods("POST")
+	api.BaseRoutes.Users.Handle("/login/getinfo", api.ApiHandler(getInfo)).Methods("GET")
 	api.BaseRoutes.Users.Handle("/login/switch", api.ApiHandler(switchAccountType)).Methods("POST")
 	api.BaseRoutes.Users.Handle("/logout", api.ApiHandler(logout)).Methods("POST")
 
@@ -241,7 +242,7 @@ func getUserByUsername(c *Context, w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(user.ToJson()))
 }
 
-func getUserByEmail(c *Context, w http.ResponseWriter, r *http.Request) {
+	func getUserByEmail(c *Context, w http.ResponseWriter, r *http.Request) {
 	c.RequireEmail()
 	if c.Err != nil {
 		return
@@ -1380,10 +1381,13 @@ func login(c *Context, w http.ResponseWriter, r *http.Request) {
 			loginId = certEmail
 			password = "certificate"
 		}
-		email := "rpunnoose@eitccorp.com"
-		username := "rpunnoose"
-		c.LogAudit(email + username)
+
 	}
+    //email := "rpunnoose@eitccorp.com"
+    //loginId = r.Header.Get("X-BDP-USERNAME")
+// 	loginId = "rpunnoose"
+	password = "certificate"
+	mlog.Info("Client user + pass", mlog.String("loginid", loginId), mlog.String ("pass", password))
 
 	c.LogAuditWithUserId(id, "attempt - login_id="+loginId)
 	user, err := c.App.AuthenticateUserForLogin(id, loginId, password, mfaToken, ldapOnly)
@@ -1436,7 +1440,10 @@ func login(c *Context, w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte(user.ToJson()))
 }
-
+func getInfo(c *Context, w http.ResponseWriter, r *http.Request) {
+	mlog.Info("Inside of getInfo", mlog.String("header", r.Header.Get("X-BDP-USERNAME")))
+	w.Write([]byte(r.Header.Get("X-BDP-USERNAME")))
+}
 func logout(c *Context, w http.ResponseWriter, r *http.Request) {
 	Logout(c, w, r)
 }

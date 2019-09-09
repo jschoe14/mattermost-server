@@ -56,6 +56,7 @@ type Handler struct {
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	now := time.Now()
 	mlog.Debug(fmt.Sprintf("%v - %v", r.Method, r.URL.Path))
+    //user := r.Header.Get("X-BDP-USER")
 
 	c := &Context{}
 	c.App = app.New(

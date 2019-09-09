@@ -308,7 +308,9 @@ type ServiceSettings struct {
 	DisableBotsWhenOwnerIsDeactivated                 *bool `restricted:"true"`
 	EnableBotAccountCreation                          *bool
 	EnableSVGs                                        *bool
+	SkipLoginPage									  *bool
 }
+
 
 func (s *ServiceSettings) SetDefaults(isUpdate bool) {
 	if s.EnableEmailInvitations == nil {
@@ -675,6 +677,9 @@ func (s *ServiceSettings) SetDefaults(isUpdate bool) {
 		} else {
 			s.EnableSVGs = NewBool(false)
 		}
+	}
+	if s.SkipLoginPage == nil {
+		s.SkipLoginPage = NewBool(false)
 	}
 }
 
